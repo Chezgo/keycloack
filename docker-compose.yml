@@ -1,0 +1,26 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.2.5
+    container_name: keycloak
+    restart: unless-stopped
+    command: start
+    environment:
+      KC_HOSTNAME: http://<TAILSCALE_IP>:8090
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak_db
+      KC_DB_USERNAME: usr
+      KC_DB_PASSWORD: pas
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: pas
+    ports:
+      - "8090:8090"
+    networks:
+      - monitoring
+
+networks:
+  monitoring:
+    external: true
