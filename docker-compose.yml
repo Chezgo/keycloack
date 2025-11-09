@@ -3,21 +3,35 @@ services:
     image: quay.io/keycloak/keycloak:26.2.5
     container_name: keycloak
     restart: unless-stopped
-    command: start
+    command: start --metrics-enabled
+    env_file:
+      - .env 
     environment:
-      KC_HOSTNAME: http://<TAILSCALE_IP>:8090
-      KC_HOSTNAME_STRICT: "false"
-      KC_HOSTNAME_STRICT_HTTPS: "false"
-      KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak_db
-      KC_DB_USERNAME: usr
-      KC_DB_PASSWORD: pas
-      KC_HEALTH_ENABLED: "true"
+      #
+      KC_HTTP_ENABLED: "true"
+      #
+      KC_HTTP_MANAGEMENT_ENABLED: "true"
+      KC_HTTP_MANAGEMENT_PORT: "9000"
+      # Отключаем доступ к метрикам с авторизацией для Prometheus
+      KC_METRICS_AUTH: "false"
       KC_METRICS_ENABLED: "true"
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: pas
+      KC_HEALTH_ENABLED:  "true"
+      # Конфиг для проксирования
+      KC_PROXY: edge
+      KC_HOSTNAME: https://keycloak.our-galaxy.space
+      #
+      KC_HOSTNAME_STRICT: "true"
+      # Блок БД
+      KC_DB: postgres
+      KC_DB_URL: ${KC_DB_URL} 
+      KC_DB_USERNAME: ${KC_DB_USERNAME}
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD}
+      # Блок админа
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN_USER}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
     ports:
-      - "8090:8090"
+      - "8081:8080"
+      - "9000:9000"
     networks:
       - monitoring
 
